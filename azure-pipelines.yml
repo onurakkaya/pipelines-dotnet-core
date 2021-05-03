@@ -15,6 +15,7 @@ pool: 'LinuxPool'
 stages:
   - stage: testEnvironment
     displayName: 'Test Environment'
+    condition: in (variables['Build.SourceBranchName'],'dev')
     jobs:
       - job: buildProject
         displayName: 'Build Project'
@@ -44,6 +45,7 @@ stages:
               publishLocation: 'Container'
   - stage: prodEnvironment
     displayName: 'Prod Environment'
+    condition: in (variables['Build.SourceBranchName'],'master','azure-pipelines')
     jobs:
       - job: buildProject
         displayName: 'Build Project'
