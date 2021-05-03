@@ -1,0 +1,44 @@
+trigger:
+- master
+- dev
+
+variables:
+- name: projectPath
+  value: 'pipelines-dotnet-core.csproj'
+- name: projectConfiguration
+  value: 'Release'
+- name: projectRuntime
+  value: 'win-x64'
+
+pool: 'LinuxPool'
+
+stages:
+  - stage: testEnvironment
+    displayName: 'Test Environment'
+    jobs:
+      - job: buildProject
+        displayName: 'Build Project'
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet Packages'
+            inputs:
+              command: 'restore'
+              projects: '$(projectPath)'
+              feedsToUse: 'select'
+          - task: DotNetCoreCLI@2
+            displayName: 'Build Project'
+            inputs:
+              command: 'build'
+              projects: '$(projectPath)'
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish Project'
+            inputs:
+              command: 'publish'
+              publishWebProjects: true
+              arguments: '-r $(projectRuntime) -c $(projectConfiguration) -o $(Build.ArtifactStagingDirectory)'
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifacts'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'pipeline-tutorial'
+              publishLocation: 'Container'
