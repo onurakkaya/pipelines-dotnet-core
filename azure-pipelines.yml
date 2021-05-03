@@ -42,3 +42,32 @@ stages:
               PathtoPublish: '$(Build.ArtifactStagingDirectory)'
               ArtifactName: 'pipeline-tutorial'
               publishLocation: 'Container'
+  - stage: prodEnvironment
+    displayName: 'Prod Environment'
+    jobs:
+      - job: buildProject
+        displayName: 'Build Project'
+        steps:
+          - task: DotNetCoreCLI@2
+            displayName: 'Restore NuGet Packages'
+            inputs:
+              command: 'restore'
+              projects: '$(projectPath)'
+              feedsToUse: 'select'
+          - task: DotNetCoreCLI@2
+            displayName: 'Build Project'
+            inputs:
+              command: 'build'
+              projects: '$(projectPath)'
+          - task: DotNetCoreCLI@2
+            displayName: 'Publish Project'
+            inputs:
+              command: 'publish'
+              publishWebProjects: true
+              arguments: '-r $(projectRuntime) -c $(projectConfiguration) -o $(Build.ArtifactStagingDirectory)'
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Build Artifacts'
+            inputs:
+              PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+              ArtifactName: 'pipeline-tutorial'
+              publishLocation: 'Container'
